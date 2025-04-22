@@ -5,9 +5,6 @@ os.environ["HF_DATASETS_CACHE"] = "D:/huggingface_cache/datasets"
 os.environ["TRANSFORMERS_CACHE"] = "D:/huggingface_cache/models"
 os.environ["TMPDIR"] = "D:/huggingface_cache/tmp"
 
-print(os.environ.get("TRANSFORMERS_CACHE"))
-print(os.environ.get("HF_DATASETS_CACHE"))
-
 
 from transformers import (
     GPT2LMHeadModel,
@@ -25,17 +22,17 @@ tokenizer.pad_token = "<pad>"
 model = GPT2LMHeadModel.from_pretrained("gpt2-model")
 
 # Загрузка датасета
-literature = load_dataset("cointegrated/taiga_stripped_proza", split="train", cache_dir="D:/huggingface_cache/datasets")
+literature = load_dataset("Den4ikAI/russian_cleared_wikipedia", split="train", cache_dir="D:/huggingface_cache/datasets")
 
 # Обработка текста перед токенизацией
 def tokenize_function(example):
-    text = example["text"]
+    text = " ".join(example["sample"])
     # Очистка текста
     text = text.replace("\n", " ").replace("--", " ")
     return tokenizer(text, truncation=True, max_length=512)
 
 # Токенизация
-tokenized_dataset = literature.map(tokenize_function, batched=True, remove_columns=["text"])
+tokenized_dataset = literature.map(tokenize_function, batched=True, remove_columns=["sample"])
 
 # Остальной код без изменений
 data_collator = DataCollatorForLanguageModeling(

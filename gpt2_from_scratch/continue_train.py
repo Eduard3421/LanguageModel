@@ -22,17 +22,22 @@ tokenizer.pad_token = "<pad>"
 model = GPT2LMHeadModel.from_pretrained("gpt2-model")
 
 # Загрузка датасета
-literature = load_dataset("Den4ikAI/russian_cleared_wikipedia", split="train", cache_dir="D:/huggingface_cache/datasets")
+literature = load_dataset("cointegrated/taiga_stripped_proza", split="train", cache_dir="D:/huggingface_cache/datasets")
 
 # Обработка текста перед токенизацией
-def tokenize_function(example):
-    text = " ".join(example["sample"])
-    # Очистка текста
-    text = text.replace("\n", " ").replace("--", " ")
-    return tokenizer(text, truncation=True, max_length=512)
+def tokenize_function(examples):
+    # Очистка всех текстов в батче
+    texts = [text.replace("\n", " ").replace("--", " ") for text in examples["text"]]
+    return tokenizer(texts, truncation=True, max_length=512, padding="max_length")
 
 # Токенизация
-tokenized_dataset = literature.map(tokenize_function, batched=True, remove_columns=["sample"])
+# tokenized_dataset = literature.map(tokenize_function, batched=True, remove_columns=["sample"])
+
+tokenized_dataset = literature.map(
+    tokenize_function,
+    batched=True,
+    remove_columns=["text", "file"]
+)
 
 # Остальной код без изменений
 data_collator = DataCollatorForLanguageModeling(
@@ -50,7 +55,7 @@ training_args = TrainingArguments(
     logging_steps=100,
     save_safetensors=False,
     fp16=True,
-    max_steps=1300000,
+    max_steps=2000000,
     save_strategy="steps",
 )
 
@@ -61,6 +66,6 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-trainer.train(resume_from_checkpoint="./gpt2-model/checkpoint-1006500")
+trainer.train(resume_from_checkpoint="./gpt2-model/checkpoint-1205000")
 trainer.save_model("gpt2-model")
 tokenizer.save_pretrained("gpt2-model")

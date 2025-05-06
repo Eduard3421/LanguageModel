@@ -26,7 +26,7 @@
   "extra_special_tokens": {},
   "max_length": 512,
   "model_max_length": 1000000000000000019884624838656,
-  "pad_token": "<pad>",
+  "pad_token": "<|endoftext|>",
   "stride": 0,
   "tokenizer_class": "GPT2Tokenizer",
   "truncation_side": "right",
